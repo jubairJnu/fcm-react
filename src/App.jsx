@@ -21,20 +21,32 @@ const App = () => {
     fetchFcmToken();
   }, []);
 
-  onMessageLister()
-    .then((paylaod) => {
-      toast(
-        <div>
-          <strong> {paylaod.notification.title} </strong>
-          <p>{paylaod.notification.body}</p>
-        </div>
-      );
-    })
-    .catch((err) => console.log(err, "error"));
+  useEffect(() => {
+    const unsubscribe = onMessageLister()
+      .then((payload) => {
+        console.log(payload, "at on apps");
+        toast(
+          <div>
+            <strong>{payload.notification.title}</strong>
+            <p>{payload.notification.body}</p>
+          </div>
+        );
+        setFcmToken(payload);
+      })
+      .catch((err) => console.log("onMessage error", err));
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   return (
     <div>
       <ToastContainer />
+      {/* rest of your app */}
+      <p style={{ color: "white" }}> Title:{fcmToken?.notification?.title}</p>
     </div>
   );
 };

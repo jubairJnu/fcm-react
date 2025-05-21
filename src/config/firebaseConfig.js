@@ -22,19 +22,41 @@ const app = initializeApp(firebaseConfig);
 
 const messaging = getMessaging(app);
 
+// export const requestFCMToken = async () => {
+//   return Notification.requestPermission()
+//     .then((permission) => {
+//       if (permission === "granted") {
+//         return getToken(messaging, { vapidkey });
+//       } else {
+//         throw new Error("Notification not granted");
+//       }
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       throw err;
+//     });
+// };
+
 export const requestFCMToken = async () => {
-  return Notification.requestPermission()
-    .then((permission) => {
-      if (permission === "granted") {
-        return getToken(messaging, { vapidkey });
-      } else {
-        throw new Error("Notification not granted");
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
+  const currentPermission = Notification.permission;
+
+  console.log(currentPermission, "curep");
+  if (currentPermission === "denied") {
+    throw new Error("Notification permission is denied.");
+  }
+
+  if (currentPermission !== "granted") {
+    const newPermission = await Notification.requestPermission();
+    if (newPermission !== "granted") {
+      throw new Error("Notification not granted");
+    }
+  }
+
+  const token = await getToken(messaging, {
+    vapidkey,
+  });
+
+  return token;
 };
 
 export const onMessageLister = () => {
