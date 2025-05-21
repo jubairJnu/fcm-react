@@ -1,7 +1,9 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { requestFCMToken } from "./config/firebaseConfig";
+import { onMessageLister, requestFCMToken } from "./config/firebaseConfig";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const App = () => {
   const [fcmToken, setFcmToken] = useState(null);
@@ -19,7 +21,22 @@ const App = () => {
     fetchFcmToken();
   }, []);
 
-  return <div></div>;
+  onMessageLister()
+    .then((paylaod) => {
+      toast(
+        <div>
+          <strong> {paylaod.notification.title} </strong>
+          <p>{paylaod.notification.body}</p>
+        </div>
+      );
+    })
+    .catch((err) => console.log(err, "error"));
+
+  return (
+    <div>
+      <ToastContainer />
+    </div>
+  );
 };
 
 export default App;
